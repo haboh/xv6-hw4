@@ -5,6 +5,8 @@
 #include "riscv.h"
 #include "defs.h"
 #include "fs.h"
+#include "spinlock.h"
+#include "proc.h"
 
 /*
  * the kernel's page table.
@@ -436,4 +438,69 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   } else {
     return -1;
   }
+}
+
+
+#define PTES_IN_PAGE_TABLE (512)
+
+void
+__vmprint(pagetable_t pagetable, int depth)
+{
+    for(int i = 0; i < PTES_IN_PAGE_TABLE; i++) 
+    {
+	pte_t pte = pagetable[i]; 
+        if (pte & PTE_V)
+        {	
+            uint64 child = PTE2PA(pte);
+
+            for (int j = 0; j < depth; j++)
+            {
+                  printf(".. ");    
+            }
+
+            printf("..%d: pte %p pa %p\n", i, pte, child);
+         	
+	    if (depth < 2) {
+        	__vmprint((pagetable_t)child, depth + 1); 
+	    }
+    	}
+    }
+}
+
+void
+vmprint(void)
+{
+    pagetable_t pagetable = myproc()->pagetable;
+
+    printf("page table %p\n", pagetable); 
+    __vmprint(pagetable, 0);
+}
+
+int
+pgaccess(void)
+{
+   	uint64 s;
+       	int n;
+	uint64 dst;
+	uint buf = 0;
+	pagetable_t pgtbl = myproc()->pagetable;
+
+	argaddr(0, &s);
+	argint(1, &n);
+	argaddr(2, &dst);
+
+	for (int i = 0; i < n; i++)
+	{
+		pte_t *cur = walk(pgtbl, s + PGSIZE * i, 0);
+		if (!cur || (~(*cur) & (PTE_V | PTE_U)))
+		{
+			return -1;
+		}
+		if (*cur & PTE_A) {
+			buf |= (1UL << i);
+			*cur &= (~PTE_A);
+		}
+	}
+
+	return copyout(pgtbl, dst, (char*) &buf, sizeof(buf));
 }
