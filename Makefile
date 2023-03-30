@@ -19,6 +19,7 @@ OBJS = \
   $K/syscall.o \
   $K/sysproc.o \
   $K/bio.o \
+  $K/diag.o \
   $K/fs.o \
   $K/log.o \
   $K/sleeplock.o \
@@ -123,6 +124,7 @@ UPROGS=\
 	$U/_init\
 	$U/_kill\
 	$U/_ln\
+	$U/_hw4\
 	$U/_ls\
 	$U/_mkdir\
 	$U/_rm\

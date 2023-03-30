@@ -15,6 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "diag.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -79,13 +80,16 @@ sys_read(void)
   return fileread(f, p, n);
 }
 
+extern void pr_msg(const char *);
+
 uint64
 sys_write(void)
 {
   struct file *f;
   int n;
   uint64 p;
-  
+ 
+  pr_msg("write happened!");
   argaddr(1, &p);
   argint(2, &n);
   if(argfd(0, 0, &f) < 0)
@@ -502,4 +506,14 @@ sys_pipe(void)
     return -1;
   }
   return 0;
+}
+
+uint64
+sys_dmesg(void)
+{
+	struct file* f;
+	if(argfd(0, 0, &f) < 0)
+		return -1;
+	filewrite(f, (uint64)pr_msg_buffer, pr_msg_buffer_pointer);
+       	return 0;
 }
