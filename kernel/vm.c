@@ -479,6 +479,28 @@ vmprint(void)
 int
 pgaccess(void)
 {
-    	
-    return 0;
+   	uint64 s;
+       	int n;
+	uint64 dst;
+	uint buf = 0;
+	pagetable_t pgtbl = myproc()->pagetable;
+
+	argaddr(0, &s);
+	argint(1, &n);
+	argaddr(2, &dst);
+
+	for (int i = 0; i < n; i++)
+	{
+		pte_t *cur = walk(pgtbl, s + PGSIZE * i, 0);
+		if (!cur || (~(*cur) & (PTE_V | PTE_U)))
+		{
+			return -1;
+		}
+		if (*cur & PTE_A) {
+			buf |= (1UL << i);
+			*cur &= (~PTE_A);
+		}
+	}
+
+	return copyout(pgtbl, dst, (char*) &buf, sizeof(buf));
 }
