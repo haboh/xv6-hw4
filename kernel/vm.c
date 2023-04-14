@@ -479,8 +479,8 @@ vmprint(void)
 int
 pgaccess(void)
 {
-   	uint64 s;
-       	int n;
+  uint64 s;
+  int n;
 	uint64 dst;
 	uint buf = 0;
 	pagetable_t pgtbl = myproc()->pagetable;

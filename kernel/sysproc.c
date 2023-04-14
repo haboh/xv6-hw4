@@ -89,3 +89,16 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_pgaccess(void)
+{
+	return pgaccess();
+}
+
+uint64
+sys_vmprint(void)
+{
+	vmprint();
+	return 0;
+}
