@@ -511,9 +511,6 @@ sys_pipe(void)
 uint64
 sys_dmesg(void)
 {
-	struct file* f;
-	if(argfd(0, 0, &f) < 0)
-		return -1;
-	filewrite(f, (uint64)pr_msg_buffer, pr_msg_buffer_pointer);
-       	return 0;
+	printf("%s", pr_msg_buffer); 
+	return 0;
 }

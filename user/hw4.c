@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
 	write(1, "hello!\n", 7);
-	if (dmesg(1) == -1) {
+	if (dmesg() == -1) {
 		printf("Error while printing buffer!");
 	}	
 	exit(0);
